@@ -18,7 +18,9 @@ destFilePath = os.path.join(assetOutPath, "testa-text.pdf")
 
 if __name__ == "__main__":
     gsheet = GSheet()
-    
+    # gsheet.getDataframeFromSubmissionSheet()
+    gsheet.setColumnValue(0, "ProcessStatus", "Success")
+    gsheet.updateSheets()
     # gdrive = GDrive()
     # gdrive.retrieve('13nvV-c4scnwv_0H5Qdfte83XR4wLSYHE', 'hi')
 
