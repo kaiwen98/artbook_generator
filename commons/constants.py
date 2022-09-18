@@ -1,11 +1,18 @@
 from enum import Enum
+import os
 
-class GSHEET_SUBMISSION_SUBMIT_CATEGORY(Enum):
+class ExtendedEnum(Enum):
+
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
+
+class GSHEET_SUBMISSION_SUBMIT_CATEGORY(ExtendedEnum):
     DIGITAL = "DIGITAL"
     TRAD = "TRAD"
     COMIC = "COMIC"
 
-class GSHEET_REGISTRATION_COL(Enum):
+class GSHEET_REGISTRATION_COL(ExtendedEnum):
     TIMESTAMP = 'Timestamp'
     RegistrationType = 'Registration Type'
     SCH_POC_NAME = 'Name of Point of Contact'
@@ -22,13 +29,14 @@ class GSHEET_REGISTRATION_COL(Enum):
     PREV_ITERATIONS = 'Have you participated in previous iterations of Extravaganza?'
     TERMS_AGREE = 'If you agree to the above, please check here:'
     VALID = 'Valid?'
+    STATUS = 'Status'
 
-class GSHEET_SUBMISSION_COL(Enum):
+class GSHEET_SUBMISSION_COL(ExtendedEnum):
     TIMESTAMP = 'Timestamp'
     EMAIL = 'Email Address'
     NAME = 'Name (as in NRIC) :'
     ARTWORK_TITLE = 'Title of Artwork :'
-    ARTWORK_TEXT = "100-word sypnosis for the artwork. You can discuss its meaning to you, the process of creating it, the artwork medium, how it relates to this year's theme, etc!", 
+    ARTWORK_TEXT = '''100-word sypnosis for the artwork. You can discuss its meaning to you, the process of creating it, the artwork medium, how it relates to this year's theme, etc!'''
     CATEGORY = 'I am submitting for ...'
     DIGITAL_FINAL = 'DIGITAL - Please upload your final submission artwork. Ensure it is named YOUR_FULL_NAME_final.png/jpeg .'
     DIGITAL_WIP1 = 'DIGITAL - Please upload the first WIP. Ensure it is named YOUR_FULL_NAME_wip1.png/jpeg .'
@@ -41,6 +49,17 @@ class GSHEET_SUBMISSION_COL(Enum):
     TRAD_WIP1 = 'Traditional - Please upload the first WIP. Ensure it is named YOUR_FULL_NAME_wip1.png/jpeg .'
     TRAD_WIP2 = 'Traditional - Please upload the second WIP. Ensure it is named YOUR_FULL_NAME_wip2.png/jpeg .'
     PROCESS_STATUS = 'ProcessStatus'
+
+ASSET_PATH = os.path.join(os.getcwd(), "assets")
+ASSET_IN_PATH = os.path.join(ASSET_PATH, "in")
+ASSET_OUT_PATH = os.path.join(ASSET_PATH, "out")
+
+IMAGE_FILE_PATH = os.path.join(ASSET_IN_PATH, "photo_2022-08-20_11-13-16.jpg")
+OUTPUT_FILE_PATH = os.path.join(ASSET_OUT_PATH, "testa-art.pdf")
+BACKGROUND_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaBookArtworkTemplate.png")
+
+SRC_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaBookArttextTemplate.psd")
+DEST_FILE_PATH = os.path.join(ASSET_OUT_PATH, "testa-text.pdf")
 
 
 # GSHEET_SUBMISSION_COLS = {
