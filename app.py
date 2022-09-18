@@ -2,6 +2,7 @@ import win32com.client
 import os
 from models.Photoshop import Photoshop
 from models.GDrive import GDrive
+from models.GSheets import GSheet
 from commons import utils
 
 assetPath = os.path.join(os.getcwd(), "assets")
@@ -16,8 +17,12 @@ srcFilePath = os.path.join(assetInPath, "seed", "ExtravaganzaBookArttextTemplate
 destFilePath = os.path.join(assetOutPath, "testa-text.pdf")
 
 if __name__ == "__main__":
-    gdrive = GDrive()
-    gdrive.retrieve('13nvV-c4scnwv_0H5Qdfte83XR4wLSYHE', 'hi')
+    gsheet = GSheet()
+    
+    # gdrive = GDrive()
+    # gdrive.retrieve('13nvV-c4scnwv_0H5Qdfte83XR4wLSYHE', 'hi')
+
+
     # ps = Photoshop(srcFilePath)
 
     # utils.generateArtworkPdf(
