@@ -7,10 +7,15 @@ class ExtendedEnum(Enum):
     def list(cls):
         return list(map(lambda c: c.value, cls))
 
-class GSHEET_SUBMISSION_SUBMIT_CATEGORY(ExtendedEnum):
+class SUBMISSION_CATEGORY(ExtendedEnum):
     DIGITAL = "DIGITAL"
     TRAD = "TRAD"
     COMIC = "COMIC"
+
+class GSHEET_SUBMISSION_CATEGORY(ExtendedEnum):
+    DIGITAL = "Digital Category"
+    TRAD = "Traditional Category"
+    COMIC = "Comic Category"
 
 class GSHEET_REGISTRATION_COL(ExtendedEnum):
     TIMESTAMP = 'Timestamp'

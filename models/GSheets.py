@@ -36,10 +36,22 @@ class GSheet():
         self.dfSubmission = self.getDataframeFromSubmissionSheet()
 
         # Left join
+        print(self.dfSubmission.set_index(GSHEET_SUBMISSION_COL.NAME.value).shape)
         self.dfComplete = self.dfSubmission.set_index(GSHEET_SUBMISSION_COL.NAME.value).join(
             self.dfRegistration.drop([GSHEET_REGISTRATION_COL.TIMESTAMP.value], axis=1).set_index(GSHEET_REGISTRATION_COL.NAME.value)
         )
 
+        # Remove duplicate indices
+        self.dfComplete = self.dfComplete[~self.dfComplete.index.duplicated(keep='last')]
+
+        print(self.dfComplete)
+
+        self.dfComplete = self.dfComplete.assign(**{
+            GSHEET_REGISTRATION_COL.NAME.value: self.dfSubmission[GSHEET_SUBMISSION_COL.NAME.value].values.tolist()
+        })
+
+        print(self.dfComplete)
+        
         self.dfComplete.to_csv(DF_PRINT_PATH)
     
     def getDataFromParticipants(self, key: GSHEET_REGISTRATION_COL | GSHEET_SUBMISSION_COL):

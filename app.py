@@ -1,3 +1,4 @@
+from commons.constants import GSHEET_SUBMISSION_COL
 import win32com.client
 import os
 from models.Photoshop import Photoshop
@@ -16,27 +17,48 @@ backgroundFilePath = os.path.join(assetInPath, "seed", "ExtravaganzaBookArtworkT
 srcFilePath = os.path.join(assetInPath, "seed", "ExtravaganzaBookArttextTemplate.psd")
 destFilePath = os.path.join(assetOutPath, "testa-text.pdf")
 
+def generatePdfs(dfCompleteRow, ps):
+    fileName = utils.getPdfName(dfCompleteRow)
+    url = utils.resolveArtworkFinalUrl(dfCompleteRow)
+    imageFilePath = gdrive.retrieve(
+        utils.getGidFromGdriveUrl(url)
+    )
+
+    utils.generateArtworkPdf(
+        imageFilePath,
+        backgroundFilePath,
+        os.path.join(assetOutPath, f"{fileName}_Art.pdf")
+    )
+
+    ps.modifyLayerText("ArtworkTitle", 
+        f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TITLE.value]}'''
+    )
+
+    ps.modifyLayerText("ArtworkDesc", 
+        f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TEXT.value]}'''
+    )
+
+    ps.modifyLayerText("ArtistDesc", 
+        utils.getParticipantDesc(dfCompleteRow)
+    )
+
+    ps.saveAsPdf(
+        os.path.join(assetOutPath, f"{fileName}_Text.pdf")
+    )
+
 if __name__ == "__main__":
     gsheet = GSheet()
-    # gsheet.getDataframeFromSubmissionSheet()
-    gsheet.setColumnValue(0, "ProcessStatus", "Success")
-    gsheet.updateSheets()
-    # gdrive = GDrive()
-    # gdrive.retrieve('13nvV-c4scnwv_0H5Qdfte83XR4wLSYHE', 'hi')
+    # # gsheet.getDataframeFromSubmissionSheet()
+    # gsheet.setColumnValue(0, "ProcessStatus", "Success")
+    # gsheet.updateSheets()
+    gdrive = GDrive()
+    gdrive.retrieve('1xleUZaxR3S8DyVP_wY2-HRjf6PEiFqQD')
+    ps = Photoshop(srcFilePath)
+    for id, row in gsheet.dfComplete.iterrows():
+        generatePdfs(row, ps)
+        break
+    
 
-
-    # ps = Photoshop(srcFilePath)
-
-    # utils.generateArtworkPdf(
-    #     imageFilePath,
-    #     backgroundFilePath,
-    #     outputFilePath
-    # )
-    # ps.modifyLayerText("ArtworkTitle", 
-    # '''Starry Night above the Moon
-    # Starry Night above the Moon'''
-    # )
-    # ps.saveAsPdf(destFilePath)
 
 
 

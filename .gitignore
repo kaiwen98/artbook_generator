@@ -3,3 +3,8 @@
 env/
 creds/
 **/*.csv
+**/*.pdf
+**/*.png
+**/*.jpeg
+**/*.jpg
+**/*.json
