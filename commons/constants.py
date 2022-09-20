@@ -66,6 +66,8 @@ BACKGROUND_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaBookArtw
 SRC_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaBookArttextTemplate.psd")
 DEST_FILE_PATH = os.path.join(ASSET_OUT_PATH, "testa-text.pdf")
 
+ARTBOOK_OUTPUT_PATH = os.path.join(ASSET_OUT_PATH, "artbook")
+
 
 # GSHEET_SUBMISSION_COLS = {
 #     'Timestamp': 'Timestamp', 

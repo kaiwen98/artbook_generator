@@ -41,10 +41,9 @@ class Photoshop():
     def saveAsPdf(self, destFilePath):
         # Configure options
         options = win32com.client.Dispatch('Photoshop.PDFSaveOptions')
-        options.Encoding = 2
+        options.Encoding = 0
         options.Layers = False
-        options.OptimizeForWeb = True
-        options.JPEGQuality = 12
+        options.OptimizeForWeb = False
 
         # Save Photoshop as PDF
         self.document.SaveAs(SaveIn=destFilePath, Options=options, ExtensionType=2)

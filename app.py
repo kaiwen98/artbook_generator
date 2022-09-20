@@ -1,4 +1,4 @@
-from commons.constants import GSHEET_SUBMISSION_COL
+from commons.constants import ARTBOOK_OUTPUT_PATH, BACKGROUND_FILE_PATH, GSHEET_SUBMISSION_CATEGORY, GSHEET_SUBMISSION_COL, SRC_FILE_PATH
 import win32com.client
 import os
 from models.Photoshop import Photoshop
@@ -6,57 +6,70 @@ from models.GDrive import GDrive
 from models.GSheets import GSheet
 from commons import utils
 
-assetPath = os.path.join(os.getcwd(), "assets")
-assetInPath = os.path.join(assetPath, "in")
-assetOutPath = os.path.join(assetPath, "out")
-
-imageFilePath = os.path.join(assetInPath, "photo_2022-08-20_11-13-16.jpg")
-outputFilePath = os.path.join(assetOutPath, "testa-art.pdf")
-backgroundFilePath = os.path.join(assetInPath, "seed", "ExtravaganzaBookArtworkTemplate.png")
-
-srcFilePath = os.path.join(assetInPath, "seed", "ExtravaganzaBookArttextTemplate.psd")
-destFilePath = os.path.join(assetOutPath, "testa-text.pdf")
-
 def generatePdfs(dfCompleteRow, ps):
+    category = dfCompleteRow[GSHEET_SUBMISSION_COL.CATEGORY.value]
     fileName = utils.getPdfName(dfCompleteRow)
     url = utils.resolveArtworkFinalUrl(dfCompleteRow)
     imageFilePath = gdrive.retrieve(
         utils.getGidFromGdriveUrl(url)
     )
+    if not os.path.exists(os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Art.pdf")):
+        utils.generateArtworkPdf(
+            imageFilePath,
+            BACKGROUND_FILE_PATH,
+            os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Art.pdf")
+        )
 
-    utils.generateArtworkPdf(
-        imageFilePath,
-        backgroundFilePath,
-        os.path.join(assetOutPath, f"{fileName}_Art.pdf")
-    )
+    print(f"Generating texts for {fileName}")
 
-    ps.modifyLayerText("ArtworkTitle", 
-        f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TITLE.value]}'''
-    )
+    if not os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Text.pdf"):
+        ps.modifyLayerText("ArtworkTitle", 
+            f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TITLE.value]}'''
+        )
 
-    ps.modifyLayerText("ArtworkDesc", 
-        f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TEXT.value]}'''
-    )
+        ps.modifyLayerText("ArtworkDesc", 
+            f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TEXT.value]}'''
+        )
 
-    ps.modifyLayerText("ArtistDesc", 
-        utils.getParticipantDesc(dfCompleteRow)
-    )
+        ps.modifyLayerText("ArtistDesc", 
+            utils.getParticipantDesc(dfCompleteRow)
+        )
 
-    ps.saveAsPdf(
-        os.path.join(assetOutPath, f"{fileName}_Text.pdf")
-    )
+        ps.saveAsPdf(
+            os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Text.pdf")
+        )
 
 if __name__ == "__main__":
     gsheet = GSheet()
     # # gsheet.getDataframeFromSubmissionSheet()
-    # gsheet.setColumnValue(0, "ProcessStatus", "Success")
+    # gsheet.setColumnValue(0, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Success")
     # gsheet.updateSheets()
+
     gdrive = GDrive()
-    gdrive.retrieve('1xleUZaxR3S8DyVP_wY2-HRjf6PEiFqQD')
-    ps = Photoshop(srcFilePath)
-    for id, row in gsheet.dfComplete.iterrows():
-        generatePdfs(row, ps)
-        break
+    # gdrive.retrieve('1xleUZaxR3S8DyVP_wY2-HRjf6PEiFqQD')
+    ps = Photoshop(SRC_FILE_PATH)
+    
+    # id = 0
+    # for _, row in gsheet.dfComplete.iterrows():
+    #     id += 1
+    #     print(id)
+    #     print(type(id))
+    #     # if row[GSHEET_SUBMISSION_COL.CATEGORY.value] != GSHEET_SUBMISSION_CATEGORY.COMIC.value:
+    #     #     continue
+    #     try:
+    #         generatePdfs(row, ps)
+    #         gsheet.setColumnValue(id, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Success")
+    #     except Exception as err:
+    #         print(err)
+    #         gsheet.setColumnValue(id, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Failed")
+    #         continue
+        
+
+    
+    utils.generateCombinedPdfFromFiles()
+
+    gsheet.updateSheets()
+
     
 
 

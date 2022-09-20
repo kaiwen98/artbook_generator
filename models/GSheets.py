@@ -47,12 +47,15 @@ class GSheet():
         print(self.dfComplete)
 
         self.dfComplete = self.dfComplete.assign(**{
-            GSHEET_REGISTRATION_COL.NAME.value: self.dfSubmission[GSHEET_SUBMISSION_COL.NAME.value].values.tolist()
+            GSHEET_REGISTRATION_COL.NAME.value: self.dfComplete.index.values.tolist()
         })
-
-        print(self.dfComplete)
+        # print(self.dfComplete)
         
         self.dfComplete.to_csv(DF_PRINT_PATH)
+
+        # Only export artists with valid registration
+        self.dfComplete = self.dfComplete[self.dfComplete[GSHEET_REGISTRATION_COL.VALID.value] == 'Y']
+
     
     def getDataFromParticipants(self, key: GSHEET_REGISTRATION_COL | GSHEET_SUBMISSION_COL):
         return self.dfComplete[key]
@@ -119,8 +122,9 @@ class GSheet():
         self.dfSubmission.at[rowIndex, columnName] = value
 
     def updateSheets(self):
-        #print(self.dfSubmission)
         # print(self.df.values.tolist())
         #print(list(self.dfSubmission.columns))
         #print(GSHEET_SUBMISSION_COL.list())
+        # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+        print(self.dfSubmission)
         self.sheetSubmission.update([list(self.dfSubmission.columns)] + self.dfSubmission[GSHEET_SUBMISSION_COL.list()].values.tolist())
