@@ -16,9 +16,21 @@ class GDrive():
         self.drive = GoogleDrive(gauth)
     
     def retrieve(self, id):
-        file_obj = self.drive.CreateFile({'id': id})
-        print(file_obj['title'])
-        if not os.path.exists(os.path.join(ASSET_OUT_PATH, "images", f"{file_obj['title']}")):
-            file_obj.GetContentFile(os.path.join(ASSET_OUT_PATH, "images", f"{file_obj['title']}"))
-            return os.path.join(ASSET_OUT_PATH, "images", f"{file_obj['title']}")
+        fileObj = self.drive.CreateFile({'id': id})
+        print(fileObj['title'])
+        filename = fileObj['title']
+        print(f"MEME TYPE: {fileObj['mimeType']}")
+
+        # Parsing pdf from application/pdf
+        fileExt = fileObj['mimeType'].split('/')[1]
+
+        # Check if uploaded with ext in name
+        ext = os.path.splitext(filename)[-1].lower()
+
+        if '.' not in ext:
+            filename += f".{fileExt}"
+            
+        # if not os.path.exists(os.path.join(ASSET_OUT_PATH, "images", f"{filename}")):
+        fileObj.GetContentFile(os.path.join(ASSET_OUT_PATH, "images", f"{filename}"))
+        return os.path.join(ASSET_OUT_PATH, "images", f"{filename}")
             # print(file_obj)

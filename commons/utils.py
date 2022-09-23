@@ -14,14 +14,14 @@ A4_PX_DIMENSION = (2480, 2480)
 def getCenteredOffset(bgSize, imageSize):
     return ((bgSize[0] - imageSize[0]) // 2, (bgSize[1] - imageSize[1]) // 2)
 
-def generateArtworkPdfFromPdf(imageFilePath, backgroundFilePath, outputFilePath):
+def generateArtworkPdfFromPdf(imageFilePath, backgroundFilePath, outputFilePath, rotateAngle):
     images = convert_from_path(imageFilePath)
     for id, image in enumerate(images, start=1):
-        outputFilePath = os.path.splitext(outputFilePath)[0] + f"_{id}" +  os.path.splitext(outputFilePath)[1]
-        print(outputFilePath)
-        pasteImageOnBackgroundAndSave(image, backgroundFilePath, outputFilePath)
+        currOutputFilePath = os.path.splitext(outputFilePath)[0] + f"_{id}" +  os.path.splitext(outputFilePath)[1]
+        print(currOutputFilePath)
+        pasteImageOnBackgroundAndSave(image, backgroundFilePath, currOutputFilePath, rotateAngle)
 
-def pasteImageOnBackgroundAndSave(image, backgroundFilePath, outputFilePath):
+def pasteImageOnBackgroundAndSave(image, backgroundFilePath, outputFilePath, rotateAngle):
     imageHeight = image.size[1]
     newImageHeight = math.ceil(imageHeight * A4_PX_DIMENSION[0] / image.size[0])
     outfile = os.path.splitext(outputFilePath)[0] + ".pdf"
@@ -31,6 +31,8 @@ def pasteImageOnBackgroundAndSave(image, backgroundFilePath, outputFilePath):
         Image.ANTIALIAS
     )
 
+    image = image.rotate(rotateAngle)
+
     backgroundImage = Image.open(backgroundFilePath)
     print(backgroundImage.size)
     offset = getCenteredOffset(backgroundImage.size, image.size)
@@ -38,14 +40,14 @@ def pasteImageOnBackgroundAndSave(image, backgroundFilePath, outputFilePath):
     # Path(outfile).write_bytes(img2pdf)
     backgroundImage.save(outfile, format="pdf", resolution=300)
 
-def generateArtworkPdf(imageFilePath, backgroundFilePath, outputFilePath):
+def generateArtworkPdf(imageFilePath, backgroundFilePath, outputFilePath, rotateAngle = 0):
     ext = os.path.splitext(imageFilePath)[1]
     print(ext)
     if ext == '.pdf':
-        generateArtworkPdfFromPdf(imageFilePath, backgroundFilePath, outputFilePath)
+        generateArtworkPdfFromPdf(imageFilePath, backgroundFilePath, outputFilePath, rotateAngle)
     else:
         image = Image.open(imageFilePath)
-        pasteImageOnBackgroundAndSave(image, backgroundFilePath, outputFilePath)
+        pasteImageOnBackgroundAndSave(image, backgroundFilePath, outputFilePath, rotateAngle)
 
 def getGidFromGdriveUrl(url):
     print(url)
@@ -69,12 +71,16 @@ def resolveArtworkFinalUrl(dfCompleteRow):
 def getParticipantDesc(dfCompleteRow):
     return f'''{dfCompleteRow[GSHEET_REGISTRATION_COL.NAME.value]} ({dfCompleteRow[GSHEET_REGISTRATION_COL.AGE.value]})\r\n{dfCompleteRow[GSHEET_REGISTRATION_COL.SCHOOL.value]}'''
 
-def generateCombinedPdfFromFiles():
+def generateCombinedPdfFromFiles(category):
     pdfPages = [
         open(os.path.join(ASSET_IN_PATH, "Extravaganza_Cover.pdf"), 'rb'),
-        open(os.path.join(ASSET_IN_PATH, "Extravaganza_Foreword.pdf"), 'rb'),
-        open(os.path.join(ASSET_IN_PATH, "Extravaganza_WS.pdf"), 'rb')
         ]
+    
+    if not category: 
+        pdfPages.append(
+            open(os.path.join(ASSET_IN_PATH, "Extravaganza_Foreword.pdf"), 'rb'),
+            open(os.path.join(ASSET_IN_PATH, "Extravaganza_WS.pdf"), 'rb')
+        )
 
     pdfWriter =PyPDF2.PdfFileWriter()
     

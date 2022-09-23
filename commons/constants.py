@@ -54,6 +54,7 @@ class GSHEET_SUBMISSION_COL(ExtendedEnum):
     TRAD_WIP1 = 'Traditional - Please upload the first WIP. Ensure it is named YOUR_FULL_NAME_wip1.png/jpeg .'
     TRAD_WIP2 = 'Traditional - Please upload the second WIP. Ensure it is named YOUR_FULL_NAME_wip2.png/jpeg .'
     PROCESS_STATUS = 'ProcessStatus'
+    ROTATE = 'Rotate'
 
 ASSET_PATH = os.path.join(os.getcwd(), "assets")
 ASSET_IN_PATH = os.path.join(ASSET_PATH, "in")

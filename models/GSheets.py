@@ -113,7 +113,7 @@ class GSheet():
             if isinstance(x, str) else x
         )
         #print(self.dfRegistration.columns)
-        dfRegistration = dfRegistration[dfRegistration[GSHEET_REGISTRATION_COL.VALID.value] == 'Y']
+        # dfRegistration = dfRegistration[dfRegistration[GSHEET_REGISTRATION_COL.VALID.value] == 'Y']
         #print(self.dfRegistration)
 
         return dfRegistration

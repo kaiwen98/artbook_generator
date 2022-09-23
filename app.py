@@ -6,23 +6,39 @@ from models.GDrive import GDrive
 from models.GSheets import GSheet
 from commons import utils
 
+nameToCount = {}
+
 def generatePdfs(dfCompleteRow, ps):
     category = dfCompleteRow[GSHEET_SUBMISSION_COL.CATEGORY.value]
+
+    angleToRotate = dfCompleteRow[GSHEET_SUBMISSION_COL.ROTATE.value]
+    angleToRotate = 0 if len(angleToRotate) == 0 else angleToRotate
+
     fileName = utils.getPdfName(dfCompleteRow)
     url = utils.resolveArtworkFinalUrl(dfCompleteRow)
     imageFilePath = gdrive.retrieve(
         utils.getGidFromGdriveUrl(url)
     )
     if not os.path.exists(os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Art.pdf")):
+        nameToCount[fileName] = 0
         utils.generateArtworkPdf(
             imageFilePath,
             BACKGROUND_FILE_PATH,
-            os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Art.pdf")
+            os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Art.pdf"),
+            angleToRotate
+        )
+    else:
+        nameToCount[fileName] += 1
+        utils.generateArtworkPdf(
+            imageFilePath,
+            BACKGROUND_FILE_PATH,
+            os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_{nameToCount[fileName]}_Art.pdf"),
+            angleToRotate
         )
 
     print(f"Generating texts for {fileName}")
 
-    if not os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Text.pdf"):
+    if not os.path.exists(os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Text.pdf")):
         ps.modifyLayerText("ArtworkTitle", 
             f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TITLE.value]}'''
         )
@@ -49,24 +65,24 @@ if __name__ == "__main__":
     # gdrive.retrieve('1xleUZaxR3S8DyVP_wY2-HRjf6PEiFqQD')
     ps = Photoshop(SRC_FILE_PATH)
     
-    # id = 0
-    # for _, row in gsheet.dfComplete.iterrows():
-    #     id += 1
-    #     print(id)
-    #     print(type(id))
-    #     # if row[GSHEET_SUBMISSION_COL.CATEGORY.value] != GSHEET_SUBMISSION_CATEGORY.COMIC.value:
-    #     #     continue
-    #     try:
-    #         generatePdfs(row, ps)
-    #         gsheet.setColumnValue(id, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Success")
-    #     except Exception as err:
-    #         print(err)
-    #         gsheet.setColumnValue(id, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Failed")
-    #         continue
+    id = 0
+    for _, row in gsheet.dfComplete.iterrows():
+        id += 1
+        print(id)
+        print(type(id))
+        if row[GSHEET_SUBMISSION_COL.CATEGORY.value] != GSHEET_SUBMISSION_CATEGORY.TRAD.value:
+            continue
+        try:
+            generatePdfs(row, ps)
+            gsheet.setColumnValue(id, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Success")
+        except Exception as err:
+            print(err)
+            gsheet.setColumnValue(id, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Failed")
+            continue
         
 
     
-    utils.generateCombinedPdfFromFiles()
+    utils.generateCombinedPdfFromFiles(category=True)
 
     gsheet.updateSheets()
 
