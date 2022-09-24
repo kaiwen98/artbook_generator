@@ -1,4 +1,4 @@
-from commons.constants import ARTBOOK_OUTPUT_PATH, BACKGROUND_FILE_PATH, GSHEET_SUBMISSION_CATEGORY, GSHEET_SUBMISSION_COL, SRC_FILE_PATH
+from commons.constants import ARTBOOK_OUTPUT_PATH, BACKGROUND_FILE_PATH, GSHEET_REGISTRATION_COL, GSHEET_SUBMISSION_CATEGORY, GSHEET_SUBMISSION_COL, SRC_FILE_PATH
 import win32com.client
 import os
 from models.Photoshop import Photoshop
@@ -8,7 +8,8 @@ from commons import utils
 
 nameToCount = {}
 
-def generatePdfs(dfCompleteRow, ps):
+def generatePdfs(dfCompleteRow, ps, nameToCount):
+    
     category = dfCompleteRow[GSHEET_SUBMISSION_COL.CATEGORY.value]
 
     angleToRotate = dfCompleteRow[GSHEET_SUBMISSION_COL.ROTATE.value]
@@ -19,71 +20,82 @@ def generatePdfs(dfCompleteRow, ps):
     imageFilePath = gdrive.retrieve(
         utils.getGidFromGdriveUrl(url)
     )
-    if not os.path.exists(os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Art.pdf")):
+    print(url)
+
+    if \
+        not os.path.exists(os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Art.pdf")) \
+            :
+        # or fileName not in nameToCount.keys():
+        """
+        If file is not yet created
+        or file exists but was not created in the current run (Meaning you replace all files. Comment out to use cached artworks.)
+        """
         nameToCount[fileName] = 0
         utils.generateArtworkPdf(
             imageFilePath,
             BACKGROUND_FILE_PATH,
             os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Art.pdf"),
-            angleToRotate
+            int(angleToRotate)
         )
-    else:
+
+    elif \
+        os.path.exists(os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Art.pdf")) \
+        and fileName in nameToCount.keys():
+        """
+        File exists and was created in the current run
+        """
         nameToCount[fileName] += 1
         utils.generateArtworkPdf(
             imageFilePath,
             BACKGROUND_FILE_PATH,
             os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_{nameToCount[fileName]}_Art.pdf"),
-            angleToRotate
+            int(angleToRotate)
         )
-
-    print(f"Generating texts for {fileName}")
 
     if not os.path.exists(os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Text.pdf")):
-        ps.modifyLayerText("ArtworkTitle", 
-            f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TITLE.value]}'''
-        )
-
-        ps.modifyLayerText("ArtworkDesc", 
-            f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TEXT.value]}'''
-        )
-
-        ps.modifyLayerText("ArtistDesc", 
-            utils.getParticipantDesc(dfCompleteRow)
-        )
-
-        ps.saveAsPdf(
-            os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Text.pdf")
+        print(f"Generating texts for {fileName}")
+        utils.generateArttextPdf(
+            ps,
+            dfCompleteRow,
+            category,
+            fileName
         )
 
 if __name__ == "__main__":
     gsheet = GSheet()
-    # # gsheet.getDataframeFromSubmissionSheet()
-    # gsheet.setColumnValue(0, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Success")
-    # gsheet.updateSheets()
-
     gdrive = GDrive()
-    # gdrive.retrieve('1xleUZaxR3S8DyVP_wY2-HRjf6PEiFqQD')
     ps = Photoshop(SRC_FILE_PATH)
     
-    id = 0
+    id = -1
     for _, row in gsheet.dfComplete.iterrows():
         id += 1
-        print(id)
-        print(type(id))
-        if row[GSHEET_SUBMISSION_COL.CATEGORY.value] != GSHEET_SUBMISSION_CATEGORY.TRAD.value:
+        print(row[GSHEET_REGISTRATION_COL.NAME.value])
+
+        # Editable, set category to process.
+        if row[GSHEET_SUBMISSION_COL.CATEGORY.value] != GSHEET_SUBMISSION_CATEGORY.DIGITAL.value:
             continue
+        
+        # Editable, set student to process.
+        # if "Leow Young Linn Nikki" not in row[GSHEET_REGISTRATION_COL.NAME.value]:
+        #     continue
+            
         try:
-            generatePdfs(row, ps)
+            generatePdfs(row, ps, nameToCount)
+
+            # Mark as success
             gsheet.setColumnValue(id, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Success")
+
         except Exception as err:
             print(err)
+
+            # Mark as Failure
             gsheet.setColumnValue(id, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Failed")
             continue
         
+    # Editable, set category to export
+    utils.generateCombinedPdfFromFiles(category=GSHEET_SUBMISSION_CATEGORY.DIGITAL)
 
-    
-    utils.generateCombinedPdfFromFiles(category=True)
-
+    # Update submission sheet with Statuses
     gsheet.updateSheets()
 
     

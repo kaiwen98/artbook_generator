@@ -6,31 +6,43 @@ import os
 
 CREDENTIALS_FILE_PATH = os.path.join(os.getcwd(), "creds", "gdrive", "credentials.json")
 SETTINGS_FILE_PATH = os.path.join(os.getcwd(), "settings.yml")
+
 class GDrive():
     def __init__(self):
-
         gauth = GoogleAuth(settings_file=SETTINGS_FILE_PATH)
-        #gauth = GoogleAuth()
         gauth.LoadCredentialsFile(CREDENTIALS_FILE_PATH)
 
         self.drive = GoogleDrive(gauth)
     
     def retrieve(self, id):
-        fileObj = self.drive.CreateFile({'id': id})
-        print(fileObj['title'])
-        filename = fileObj['title']
-        print(f"MEME TYPE: {fileObj['mimeType']}")
+        """ Retrieve an image given the gdrive id and store locally.        
 
-        # Parsing pdf from application/pdf
+        Args:
+            id (string): The gdrive id.
+
+        Returns:
+            string: The path to the locally stored file.
+        """
+
+        fileObj = self.drive.CreateFile({'id': id})
+
+        # Clean file name.
+        filename = fileObj['title'].replace(":", "").strip()
+
+
+
+        # Parsing {{ext}} from application/{{ext}}
         fileExt = fileObj['mimeType'].split('/')[1]
 
         # Check if uploaded with ext in name
         ext = os.path.splitext(filename)[-1].lower()
+        print(ext)
 
         if '.' not in ext:
             filename += f".{fileExt}"
-            
-        # if not os.path.exists(os.path.join(ASSET_OUT_PATH, "images", f"{filename}")):
-        fileObj.GetContentFile(os.path.join(ASSET_OUT_PATH, "images", f"{filename}"))
+
+        # Editable, if you wish to use cached photos.
+        if not os.path.exists(os.path.join(ASSET_OUT_PATH, "images", f"{filename}")):        
+            fileObj.GetContentFile(os.path.join(ASSET_OUT_PATH, "images", f"{filename}"))
+
         return os.path.join(ASSET_OUT_PATH, "images", f"{filename}")
-            # print(file_obj)
