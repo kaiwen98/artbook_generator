@@ -10,7 +10,8 @@ from pathlib import Path
 from commons.constants import (
     ARTBOOK_OUTPUT_PATH, 
     ASSET_IN_PATH, 
-    ASSET_OUT_PATH, 
+    ASSET_OUT_PATH,
+    CERT_OUTPUT_PATH, 
     GSHEET_REGISTRATION_COL,
     GSHEET_SUBMISSION_CATEGORY, 
     GSHEET_SUBMISSION_COL
@@ -65,6 +66,40 @@ def generateArttextPdf(
         os.path.join(ARTBOOK_OUTPUT_PATH, category, f"{fileName}_Text.pdf")
     )
 
+def generateCertPdf(
+    ps,
+    dfCompleteRow,
+    category,
+    fileName
+):
+    """Generate the text page for a given artist.
+
+    Args:
+        ps (PhotoshopApp): The photoshop application object.
+        dfCompleteRow (Series): The pandas row representing the artist particulars.
+        category (GSHEETS_SUBMISSION_CATEGORY): The category of the artist. 
+        fileName (string): The root name of the file to save the assets with.
+    """
+    ps.modifyLayerText("Achievement", 
+        replaceEscapeChars(f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.PRIZE.value]}''')
+    )
+
+    ps.modifyLayerText("Name", 
+        replaceEscapeChars(f'''{dfCompleteRow[GSHEET_REGISTRATION_COL.NAME.value]}''')
+    )
+
+    print(repr(
+        replaceEscapeChars(f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.ARTWORK_TEXT.value]}''')
+    ))
+
+    ps.modifyLayerText("Category", 
+        replaceEscapeChars(f'''{dfCompleteRow[GSHEET_SUBMISSION_COL.CATEGORY.value]}''')
+    )
+
+    ps.saveAsPdf(
+        os.path.join(CERT_OUTPUT_PATH, category, f"{fileName}_Cert.pdf")
+    )
+
 # Artwork
 
 def getCenteredOffset(bgSize, imageSize):
@@ -90,7 +125,7 @@ def generateArtworkPdfFromPdf(imageFilePath, backgroundFilePath, outputFilePath,
     """
     images = convert_from_path(imageFilePath)
     for id, image in enumerate(images, start=1):
-        currOutputFilePath = os.path.splitext(outputFilePath)[0] + f"_{id}" +  os.path.splitext(outputFilePath)[1]
+        currOutputFilePath = os.path.splitext(outputFilePath)[0] + f"_{str(id).zfill(3)}" +  os.path.splitext(outputFilePath)[1]
         pasteImageOnBackgroundAndSave(image, backgroundFilePath, currOutputFilePath, rotateAngle)
 
 def pasteImageOnBackgroundAndSave(image, backgroundFilePath, outputFilePath, rotateAngle):

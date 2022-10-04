@@ -1,4 +1,4 @@
-from commons.constants import ARTBOOK_OUTPUT_PATH, BACKGROUND_FILE_PATH, GSHEET_REGISTRATION_COL, GSHEET_SUBMISSION_CATEGORY, GSHEET_SUBMISSION_COL, SRC_FILE_PATH
+from commons.constants import ARTBOOK_OUTPUT_PATH, BACKGROUND_FILE_PATH, GSHEET_REGISTRATION_COL, GSHEET_SUBMISSION_CATEGORY, GSHEET_SUBMISSION_COL, SRC_CERT_PSD_PATH, SRC_FILE_PATH
 import win32com.client
 import os
 from models.Photoshop import Photoshop
@@ -7,6 +7,20 @@ from models.GSheets import GSheet
 from commons import utils
 
 nameToCount = {}
+
+def generateCert(dfCompleteRow, ps):
+    fileName = utils.getPdfName(dfCompleteRow)
+    category = dfCompleteRow[GSHEET_SUBMISSION_COL.CATEGORY.value]
+    print(category)
+    
+    nameToCount[fileName] = 0
+    print(f"Generating Certs for {fileName}")
+    utils.generateCertPdf(
+        ps,
+        dfCompleteRow,
+        category,
+        fileName
+    )
 
 def generatePdfs(dfCompleteRow, ps, nameToCount):
     
@@ -64,15 +78,20 @@ def generatePdfs(dfCompleteRow, ps, nameToCount):
 if __name__ == "__main__":
     gsheet = GSheet()
     gdrive = GDrive()
-    ps = Photoshop(SRC_FILE_PATH)
-    
+    #ps = Photoshop(SRC_FILE_PATH)
+    ps = Photoshop(SRC_CERT_PSD_PATH)
     id = -1
     for _, row in gsheet.dfComplete.iterrows():
         id += 1
+        if len(row[GSHEET_SUBMISSION_COL.PRIZE.value]) == 0:
+            continue
+        generateCert(row, ps)
+        
+        """
         print(row[GSHEET_REGISTRATION_COL.NAME.value])
 
         # Editable, set category to process.
-        if row[GSHEET_SUBMISSION_COL.CATEGORY.value] != GSHEET_SUBMISSION_CATEGORY.DIGITAL.value:
+        if row[GSHEET_SUBMISSION_COL.CATEGORY.value] != GSHEET_SUBMISSION_CATEGORY.COMIC.value:
             continue
         
         # Editable, set student to process.
@@ -91,9 +110,10 @@ if __name__ == "__main__":
             # Mark as Failure
             gsheet.setColumnValue(id, GSHEET_SUBMISSION_COL.PROCESS_STATUS.value, "Failed")
             continue
+        """
         
     # Editable, set category to export
-    utils.generateCombinedPdfFromFiles(category=GSHEET_SUBMISSION_CATEGORY.DIGITAL)
+    # utils.generateCombinedPdfFromFiles(category=GSHEET_SUBMISSION_CATEGORY.COMIC)
 
     # Update submission sheet with Statuses
     gsheet.updateSheets()

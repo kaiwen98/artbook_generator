@@ -12,6 +12,26 @@ class SUBMISSION_CATEGORY(ExtendedEnum):
     TRAD = "TRAD"
     COMIC = "COMIC"
 
+class AWARD_TIER_TRAD(ExtendedEnum):
+    TRAD_1_PLACE = "T_1"
+    TRAD_2_PLACE = "T_2"
+    TRAD_3_PLACE = "T_3"
+    TRAD_CONCEPT = "T_C"
+    TRAD_TECHNIQUE = "T_T"
+
+class AWARD_TIER_COMIC(ExtendedEnum):
+    COMIC_1_PLACE = "C_1"
+    COMIC_HM = "C_H"
+
+class AWARD_TIER_DIGITAL(ExtendedEnum):
+    DIGITAL_1_PLACE = "D_1"
+    DIGITAL_2_PLACE = "T_2"
+    DIGITAL_3_PLACE = "T_3"
+    DIGITAL_CONCEPT = "T_C"
+    DIGITAL_TECHNIQUE = "T_T"
+    DIGITAL_HM = "D_H"
+
+
 class GSHEET_SUBMISSION_CATEGORY(ExtendedEnum):
     DIGITAL = "Digital Category"
     TRAD = "Traditional Category"
@@ -55,6 +75,7 @@ class GSHEET_SUBMISSION_COL(ExtendedEnum):
     TRAD_WIP2 = 'Traditional - Please upload the second WIP. Ensure it is named YOUR_FULL_NAME_wip2.png/jpeg .'
     PROCESS_STATUS = 'ProcessStatus'
     ROTATE = 'Rotate'
+    PRIZE = 'Prize'
 
 ASSET_PATH = os.path.join(os.getcwd(), "assets")
 ASSET_IN_PATH = os.path.join(ASSET_PATH, "in")
@@ -64,11 +85,13 @@ IMAGE_FILE_PATH = os.path.join(ASSET_IN_PATH, "photo_2022-08-20_11-13-16.jpg")
 OUTPUT_FILE_PATH = os.path.join(ASSET_OUT_PATH, "testa-art.pdf")
 BACKGROUND_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaBookArtworkTemplate.png")
 
-SRC_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaBookArttextTemplate.psd")
+SRC_CERT_PSD_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaCert.psd")
+SRC_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaArttextTemplate.psd")
+
 DEST_FILE_PATH = os.path.join(ASSET_OUT_PATH, "testa-text.pdf")
 
 ARTBOOK_OUTPUT_PATH = os.path.join(ASSET_OUT_PATH, "artbook")
-
+CERT_OUTPUT_PATH = os.path.join(ASSET_OUT_PATH, "cert")
 
 # GSHEET_SUBMISSION_COLS = {
 #     'Timestamp': 'Timestamp', 
