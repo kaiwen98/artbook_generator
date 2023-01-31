@@ -18,5 +18,6 @@ It aims to programmatically generate an artbook off the submission of various ar
 3. Install dependencies via `pip install -r requirements.txt`
 4. Run the code via `python app.py`
 
-## Note
-1. 
+## Refreshing GDrive token
+1. Delete ./credentials.json
+2. Rerun the code

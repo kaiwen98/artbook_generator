@@ -10,7 +10,9 @@ SETTINGS_FILE_PATH = os.path.join(os.getcwd(), "settings.yml")
 class GDrive():
     def __init__(self):
         gauth = GoogleAuth(settings_file=SETTINGS_FILE_PATH)
-        gauth.LoadCredentialsFile(CREDENTIALS_FILE_PATH)
+        gauth.LoadCredentialsFile(
+        #    CREDENTIALS_FILE_PATH
+        )
 
         self.drive = GoogleDrive(gauth)
     

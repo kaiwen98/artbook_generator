@@ -86,7 +86,7 @@ OUTPUT_FILE_PATH = os.path.join(ASSET_OUT_PATH, "testa-art.pdf")
 BACKGROUND_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaBookArtworkTemplate.png")
 
 SRC_CERT_PSD_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaCert.psd")
-SRC_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaArttextTemplate.psd")
+SRC_FILE_PATH = os.path.join(ASSET_IN_PATH, "seed", "ExtravaganzaBookArttextTemplate.psd")
 
 DEST_FILE_PATH = os.path.join(ASSET_OUT_PATH, "testa-text.pdf")
 

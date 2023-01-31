@@ -151,7 +151,8 @@ def pasteImageOnBackgroundAndSave(image, backgroundFilePath, outputFilePath, rot
     backgroundImage = Image.open(backgroundFilePath)
     offset = getCenteredOffset(backgroundImage.size, image.size)
     backgroundImage.paste(image, offset)
-    backgroundImage.save(outfile, format="pdf", resolution=300)
+    backgroundImage.convert('RGB')
+    backgroundImage.save(outfile, format="pdf", quality=60, resolution=300)
 
 def generateArtworkPdf(imageFilePath, backgroundFilePath, outputFilePath, rotateAngle = 0):
     """Generate a suitably named Artwork PDF
@@ -238,11 +239,14 @@ def generateCombinedPdfFromFiles(category:GSHEET_SUBMISSION_CATEGORY=None):
         open(os.path.join(ASSET_IN_PATH, "Extravaganza_Cover.pdf"), 'rb'),
         ]
     
-    if not category: 
-        pdfPages.append(
-            open(os.path.join(ASSET_IN_PATH, "Extravaganza_Foreword.pdf"), 'rb'),
-            open(os.path.join(ASSET_IN_PATH, "Extravaganza_WS.pdf"), 'rb')
-        )
+    # if category is None: 
+    pdfPages.append(
+        open(os.path.join(ASSET_IN_PATH, "Extravaganza_Foreword.pdf"), 'rb')
+    )
+
+    pdfPages.append(
+        open(os.path.join(ASSET_IN_PATH, "Extravaganza_WS.pdf"), 'rb')
+    )
 
     pdfWriter =PyPDF2.PdfFileWriter()
     
@@ -250,7 +254,7 @@ def generateCombinedPdfFromFiles(category:GSHEET_SUBMISSION_CATEGORY=None):
         print(folder)
         if \
             category != None \
-            and folder != category.value:
+            and folder != category:
             continue
 
         if folder == GSHEET_SUBMISSION_CATEGORY.COMIC.value:
@@ -262,6 +266,10 @@ def generateCombinedPdfFromFiles(category:GSHEET_SUBMISSION_CATEGORY=None):
 
         pdfPages.append(
             open(os.path.join(ASSET_IN_PATH, categoryPage), 'rb')
+        )
+
+        pdfPages.append(
+            open(os.path.join(ASSET_IN_PATH, "Extravaganza_Fill.pdf"), 'rb')
         )
 
         for file in os.listdir(os.path.join(ASSET_OUT_PATH, "artbook", folder)):
